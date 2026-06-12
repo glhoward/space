@@ -670,12 +670,19 @@
           <div class="equation-block">
             $$
             \tilde{m}_{ij} =
-            \frac{m_{i \to j} - m_{j \to i}}
-            {\log(m_{i \to j}) - \log(m_{j \to i})}.
+            \begin{cases}
+            \dfrac{m_{i \to j} - m_{j \to i}}
+            {\log(m_{i \to j}) - \log(m_{j \to i})},
+            & m_{i \to j}\ne m_{j \to i},\; m_{i \to j}>0,\; m_{j \to i}>0,\\[1em]
+            m_{i \to j},
+            & m_{i \to j}=m_{j \to i}>0,\\
+            0,
+            & m_{i \to j}=0 \text{ or } m_{j \to i}=0.
+            \end{cases}
             $$
           </div>
           <p>
-            If $m_{i\to j}=m_{j\to i}$, the expression above is undefined, so use $\tilde m_{ij}=m_{i\to j}$. This logarithmic mean is the object that matches the model's steady-state migration flows (Howard and Shao 2026). In practice, using the arithmetic average is unlikely to make much of a difference anyway, as migration is fairly symmetric. For non-movers, set $\tilde m_{ii}=m_{i\to i}$.
+            The second and third cases handle equal flows and pairs with a zero flow. This logarithmic mean is the object that matches the model's steady-state migration flows (Howard and Shao 2026). In practice, using the arithmetic average is unlikely to make much of a difference anyway, as migration is fairly symmetric. For non-movers, set $\tilde m_{ii}=m_{i\to i}$.
           </p>
 
           <h3 id="step-2">Step 2: Recover Persistence via Eigenvalues</h3>
@@ -719,7 +726,7 @@
             $$
           </div>
           <p>
-            These weights satisfy the population accounting equation and, by construction, reproduce the migration moments targeted in the calibration. Once calibration is complete, the key objects are $\tilde{\rho}$, $\tilde{\nu}$, the baseline population shares $p_i$, and the calibrated weights $\tilde{w}_{iq}$. These are enough to compute population responses to utility changes. Primitive weights $w_{iq}$ are needed only if the population block is written in levels.
+            These weights satisfy the population accounting equation and, by construction, reproduce the migration moments targeted in the calibration. Once calibration is complete, the key objects are $\tilde{\rho}$, $\tilde{\nu}$, the baseline population shares $p_i$, and the calibrated weights $\tilde{w}_{ij}$. These are enough to compute population responses to utility changes. Primitive weights $w_{ij}$ are needed only if the population block is written in levels.
           </p>
 
           <h3 id="step-4">Step 4: Calibrate $\tilde \nu$</h3>
@@ -792,9 +799,7 @@
           <div class="equation-block">
             $$
             w_{ij} =
-            (\tilde{w}_{ij}+\tilde{w}_{ji})
-            \tilde{w}_{ij}
-            e^{-(1-\tilde{\rho})\tilde{\nu} u_i^0}.
+            \tilde{w}_{ij}e^{-(1-\tilde{\rho})\tilde{\nu} u_i^0}.
             $$
           </div>
           <p>
@@ -807,6 +812,7 @@
             $$
             p_i(u)=
             \sum_{j \neq i}
+            (\tilde{w}_{ij}+\tilde{w}_{ji})
             \frac{w_{ij}e^{(1-\tilde{\rho})\tilde{\nu} u_i}}
             {w_{ij}e^{(1-\tilde{\rho})\tilde{\nu} u_i}
             +w_{ji}e^{(1-\tilde{\rho})\tilde{\nu} u_j}}.
