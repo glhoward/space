@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How and Why to Use the SPACE Framework in a Quantitative Spatial Model</title>
+  <meta name="author" content="Greg Howard">
+  <meta name="description" content="A practical guide to using the SPACE framework as the migration or location-choice block in a quantitative spatial model.">
+  <style>
+    :root {
+      --ink: #20231f;
+      --muted: #5d645b;
+      --line: #d9ded4;
+      --soft-line: #e7ebe3;
+      --paper: #ffffff;
+      --band: #f6f8f3;
+      --surface: #fbfcf8;
+      --green: #1f5a3d;
+      --green-dark: #143d2b;
+      --orange: #c85f22;
+      --blue: #315f7d;
+      --shadow: 0 10px 28px rgba(32, 35, 31, 0.07);
+      --measure: 760px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration-color: rgba(31, 90, 61, 0.35);
+      text-underline-offset: 3px;
+    }
+
+    a:hover,
+    a:focus {
+      color: var(--green-dark);
+      text-decoration-color: currentColor;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -4rem;
+      z-index: 100;
+      padding: 0.5rem 0.75rem;
+      background: var(--ink);
+      color: white;
+      border-radius: 6px;
+    }
+
+    .skip-link:focus {
+      top: 1rem;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-shell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex: 1 1 auto;
+      min-width: 0;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.25;
+      text-decoration: none;
+    }
+
+    .brand-title {
+      display: inline-block;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus {
+      color: var(--green);
+    }
+
+    .download-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.25rem;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      color: var(--green) !important;
+      font-weight: 650;
+    }
+
+    .hero {
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(246, 248, 243, 0.92), rgba(255, 255, 255, 1));
+    }
+
+    .hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 4.8rem 1.25rem 3rem;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--ink);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: none;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.45rem, 4.8vw, 4.6rem);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 1.25rem 0 0;
+      color: #3c433a;
+      font-size: clamp(1.02rem, 1.6vw, 1.24rem);
+      line-height: 1.55;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.1rem;
+      margin: 1.6rem 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .meta span::before {
+      content: "";
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .page-grid {
+      display: grid;
+      grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+      gap: 3rem;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 3rem 1.25rem 5rem;
+    }
+
+    .toc {
+      position: sticky;
+      top: 4.5rem;
+      align-self: start;
+      padding: 0 0 0 1rem;
+      border-left: 2px solid var(--soft-line);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .toc h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.85rem;
+      color: var(--green-dark);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .toc ol {
+      display: grid;
+      gap: 0.45rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .toc a:hover,
+    .toc a:focus {
+      color: var(--green);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    article {
+      max-width: var(--measure);
+    }
+
+    section {
+      scroll-margin-top: 5rem;
+      margin: 0 0 3rem;
+    }
+
+    h2 {
+      margin: 0 0 1.1rem;
+      padding-top: 0.25rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.65rem, 2.4vw, 2.25rem);
+    }
+
+    h3 {
+      margin: 2rem 0 0.7rem;
+      font-size: 1.18rem;
+      color: var(--green-dark);
+    }
+
+    p {
+      margin: 0 0 1.1rem;
+    }
+
+    .lead {
+      color: #363d35;
+      font-size: 1.08rem;
+    }
+
+    .equation-block {
+      overflow-x: auto;
+      margin: 1.1rem 0 1.25rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--soft-line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .equation-block mjx-container {
+      min-width: max-content;
+    }
+
+    .reader-note {
+      margin: 1.45rem 0 1.75rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 6px;
+      background: var(--surface);
+      color: #343a32;
+      font-size: 0.98rem;
+    }
+
+    .reader-note p {
+      margin: 0;
+    }
+
+    .steps {
+      display: grid;
+      gap: 0.9rem;
+      margin: 1.35rem 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .steps li {
+      position: relative;
+      min-height: 4.2rem;
+      padding: 0.95rem 1rem 0.95rem 4rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      counter-increment: step;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      top: 0.95rem;
+      left: 1rem;
+      display: grid;
+      place-items: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--green);
+      color: white;
+      font-weight: 750;
+      font-size: 0.95rem;
+    }
+
+    .references {
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .references p {
+      padding-left: 1.5rem;
+      text-indent: -1.5rem;
+      color: #343a32;
+      font-size: 0.98rem;
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--line);
+      background: var(--band);
+    }
+
+    .footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .MathJax {
+      outline: 0;
+    }
+
+    @media (max-width: 900px) {
+      .page-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-inner {
+        gap: 2rem;
+        padding-top: 3.5rem;
+      }
+
+      .toc {
+        position: static;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        padding: 1rem 0 0;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        font-size: 16px;
+      }
+
+      .nav-shell {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 0.6rem 0.9rem;
+        white-space: normal;
+      }
+
+      .hero-inner,
+      .page-grid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .steps li {
+        padding-left: 3.5rem;
+      }
+
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]]
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header" aria-label="Site header">
+    <div class="nav-shell">
+      <a class="brand" href="#">
+        <span class="brand-title">How and Why to Use the SPACE Framework in a Quantitative Spatial Model</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="minimal-example.html">Minimal Example</a>
+        <a class="download-link" href="note.pdf">PDF</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-inner">
+      <div>
+        <h1 id="title">How and Why to Use the SPACE Framework in a Quantitative Spatial Model</h1>
+        <p class="subtitle">
+          A practical guide to replacing the migration or location-choice block in a quantitative spatial model with Spatially and Persistently Autocorrelated Epsilons.
+        </p>
+        <div class="meta" aria-label="Document metadata">
+          <span>Greg Howard</span>
+          <span>June 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="page-grid">
+    <aside class="toc" aria-labelledby="toc-title">
+      <h2 id="toc-title">Contents</h2>
+      <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#incorporating">Incorporating SPACE</a></li>
+        <li><a href="#calibration">Calibration</a></li>
+        <li><a href="#using">Using the Model</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+        <li><a href="#checklist">Checklist</a></li>
+      </ol>
+    </aside>
+
+    <main id="content">
+      <article>
+        <section id="introduction" aria-labelledby="introduction-title">
+          <h2 id="introduction-title">Introduction</h2>
+          <p class="lead">
+            This note gives a practical guide to using the SPACE (Spatially and Persistently Autocorrelated Epsilons) framework as the migration or location-choice block in a quantitative spatial model (QSM).
+          </p>
+          <p>
+            The model follows Howard and Shao (2026). The purpose here is not to re-derive the theory. It is to show what block to replace, how to calibrate the replacement, and how to use the calibrated block in counterfactual exercises.
+          </p>
+          <p>
+            SPACE can be used in both dynamic and static spatial models. In dynamic settings, it gives a tractable alternative to moving-cost-based migration models. In static settings, it gives a disciplined substitution structure because population cross-elasticities are tied directly to observed migration flows. The framework is therefore useful whenever migration data are available, even if the surrounding model is otherwise static.
+          </p>
+        </section>
+
+        <section id="incorporating" aria-labelledby="incorporating-title">
+          <h2 id="incorporating-title">Incorporating SPACE into a QSM</h2>
+          <p>
+            Consider a standard QSM with locations $i = 1, \dots, I$, flow utility $u_i$ coming from the productivity, trade, housing, or amenity blocks, and a migration or location-choice block. SPACE replaces only that last block. The rest of the model can usually be left unchanged.
+          </p>
+          <p>
+            The block being replaced is typically a discrete-choice problem over locations. In a static model, it is often written as
+          </p>
+          <div class="equation-block">
+            $$
+            \max_i \left\{ u_i + \frac{\epsilon_i}{\sigma} \right\},
+            $$
+          </div>
+          <p>
+            where $\epsilon_i$ is an idiosyncratic taste shock and $\sigma$ controls the scale of that shock. In a dynamic moving-cost model, the corresponding block is often written as
+          </p>
+          <div class="equation-block">
+            $$
+            V_{jt} = \max_i \left\{ u_{it} - \delta_{ji} + \frac{\epsilon_{it}}{\sigma} + \beta \mathbb{E}[V_{i,t+1}] \right\},
+            $$
+          </div>
+          <p>
+            where $V_{jt}$ is the value of currently being in location $j$, $u_{it}$ is flow utility in destination $i$ at date $t$, $\delta_{ji}$ is the cost of moving from current location $j$ to destination $i$, and $\beta$ is the discount factor.
+          </p>
+
+          <h3 id="agent-optimization">Agent Optimization Problem</h3>
+          <p>
+            The SPACE replacement is
+          </p>
+          <div class="equation-block">
+            $$
+            V(\epsilon_t) = \max_{i \in \{1,\dots,I\}} \left\{ u_{it}+ \frac{\epsilon_{it}}{\nu}\right\} + \beta \mathbb{E}\left[ V(\epsilon_{t+1}) \mid \epsilon_t \right].
+            $$
+          </div>
+          <p>
+            Here $V(\epsilon_t)$ is the value function, but which now depends on $\epsilon_t$ and not $j$, $\epsilon_{it}$ is an idiosyncratic utility component but which is now correlated across locations and persistent over time, and $\nu$ is an inverse scale parameter. In a static model, the same expression can be used with the forward-looking term omitted.
+          </p>
+          <p>
+            The vector of shocks $\epsilon_t = (\epsilon_{1t}, \dots, \epsilon_{It})$ follows a generalized extreme value (GEV) distribution. Let $z_i = e^{\epsilon_{it}}$. Then the joint distribution is characterized by a generating function $G(z_1, \dots, z_I)$ such that, for thresholds $x_1,\dots,x_I$,
+          </p>
+          <div class="equation-block">
+            $$
+            \Pr(\epsilon_{1t} \leq x_1, \dots, \epsilon_{It} \leq x_I) =
+            \exp\left(-G(e^{-x_1}, \dots, e^{-x_I})\right).
+            $$
+          </div>
+          <p>
+            The function $G(\cdot)$ is homogeneous of degree one and determines the pattern of correlation across locations. It must also satisfy the regularity conditions in McFadden (1978), which the following calibration does.
+          </p>
+          <p>
+            Persistence over time is introduced by specifying that the joint distribution of $(\epsilon_t, \epsilon_{t+1})$ is also GEV, with a parameter $\rho \in [0,1)$ governing the degree of persistence. In particular, the joint generating function takes the form
+          </p>
+          <div class="equation-block">
+            $$
+            G\big(e^{\epsilon_t}, e^{\epsilon_{t+1}}\big)=
+            G\left(
+            \left( \left( e^{\epsilon_{1t}} \right)^{\frac{1}{1-\rho}}
+            + \left( e^{\epsilon_{1,t+1}} \right)^{\frac{1}{1-\rho}} \right)^{1-\rho},
+            \dots,
+            \left( \left( e^{\epsilon_{It}} \right)^{\frac{1}{1-\rho}}
+            + \left( e^{\epsilon_{I,t+1}} \right)^{\frac{1}{1-\rho}}\right)^{1-\rho}
+            \right).
+            $$
+          </div>
+          <p>
+            This construction preserves the marginal GEV distributions while inducing correlation across periods. Intuitively, higher $\rho$ means that realizations of $\epsilon_{it}$ are more strongly correlated over time. That persistence generates inertia in location choices without explicit moving costs.
+          </p>
+          <p>
+            The key departure from standard models is that $\epsilon_{it}$ is jointly distributed across locations and time. There are no moving costs or switching frictions; all dynamics come from the evolution of $\epsilon_{it}$.
+          </p>
+          <p>
+            Under SPACE, population shares have a closed form:
+          </p>
+          <div class="equation-block">
+            $$
+            p_i = \frac{e^{\nu u_i} G_i(e^{\nu u_1}, \dots, e^{\nu u_I})}
+            {G(e^{\nu u_1}, \dots, e^{\nu u_I})},
+            $$
+          </div>
+          <p>
+            where $G_i$ is the partial derivative of $G$ with respect to its $i$th term. Migration has a corresponding closed form when $u_t=u_{t+1}$:
+          </p>
+          <div class="equation-block">
+            $$
+            m_{i\to j} = (1-\rho) e^{\nu (u_i+u_j)}
+            \left(
+            \frac{G_{i}(e^{\nu u_1}, \dots, e^{\nu u_I})G_{j}(e^{\nu u_1}, \dots, e^{\nu u_I})}
+            {G(e^{\nu u_1}, \dots, e^{\nu u_I})^2}
+            -
+            \frac{G_{ij}(e^{\nu u_1}, \dots, e^{\nu u_I})}
+            {G(e^{\nu u_1}, \dots, e^{\nu u_I})}
+            \right),
+            $$
+          </div>
+          <p>
+            where $m_{i\to j}$ is the share of people moving from $i$ to $j$, and $G_{ij}$ is the cross-partial derivative of $G$ with respect to its $i$th and $j$th terms. The key implementation implication is
+          </p>
+          <div class="equation-block">
+            $$
+            \frac{\partial p_i}{\partial u_j} = -\frac{\nu}{1 - \rho} m_{i \to j}.
+            $$
+          </div>
+          <p>
+            Migration flows are therefore a sufficient statistic for population cross-elasticities.
+          </p>
+        </section>
+
+        <section id="calibration" aria-labelledby="calibration-title">
+          <h2 id="calibration-title">Calibration: Overview</h2>
+          <p>
+            For implementation, the goal is not to search over all possible GEV structures. The goal is to choose a structure that is easy to calibrate, easy to simulate, and disciplined by observed migration data. Following Howard and Shao (2026), a convenient choice is a cross-nested GEV system in which each nest contains exactly two locations:
+          </p>
+          <div class="equation-block">
+            $$
+            G(z_1, \dots, z_I) =
+            \sum_{i \lt j}
+            \left((w_{ij} z_i)^{\frac{1}{1-\gamma}}
+            + (w_{ji} z_j)^{\frac{1}{1-\gamma}}\right)^{1-\gamma}.
+            $$
+          </div>
+          <p>
+            Here, each pair $\{i,j\}$ is a two-location nest, $w_{ij}$ and $w_{ji}$ are nonnegative nest weights, and $\gamma$ is the within-nest elasticity of substitution. This two-location version of the Howard-Shao calibration is useful because the relevant objects can be recovered from bilateral migration data.
+          </p>
+          <p>
+            The next step is to reparameterize the model in a way that is convenient for calibration. Howard and Shao define a reduced-form persistence object $\tilde{\rho}$ and a reduced-form inverse scale parameter $\tilde{\nu}$ through
+          </p>
+          <div class="equation-block">
+            $$
+            1-\gamma = \frac{1-\rho}{1-\tilde{\rho}}
+            \qquad \text{and} \qquad
+            \nu = (1-\rho)\tilde{\nu}.
+            $$
+          </div>
+          <p>
+            These reparameterizations keep the formulas well behaved as $\rho \to 1$, which is helpful for simple algebra and in cases where it is helpful to simulate the micro-behavior (which is not covered in this note). Without the $\nu$ normalization, the cross-elasticity formula would diverge in precisely the high-persistence case that makes SPACE attractive. With this normalization,
+          </p>
+          <div class="equation-block">
+            $$
+            \frac{\partial p_i}{\partial u_j} = -\tilde{\nu} \, m_{i \to j}
+            $$
+          </div>
+          <p>
+            in the $\rho \to 1$ limit. The parameter $\rho$ remains the underlying persistence parameter. The objects that matter for calibration and counterfactual work are $\tilde{\rho}$ and $\tilde{\nu}$.
+          </p>
+          <p>
+            Rather than calibrating the raw nest weights $w_{ij}$, it is more convenient to work with the transformed weights
+          </p>
+          <div class="equation-block">
+            $$
+            \tilde{w}_{ij} \equiv
+            (w_{ij}e^{\nu u_i})^{\frac{1}{1-\gamma}}
+            \left[
+            (w_{ij}e^{\nu u_i})^{\frac{1}{1-\gamma}}
+            + (w_{ji}e^{\nu u_j})^{\frac{1}{1-\gamma}}
+            \right]^{-\gamma},
+            $$
+          </div>
+          <p>
+            for each two-location nest $\{i,j\}$. These transformed weights are the practical objects. They enter the formulas for populations, migration rates, and counterfactual responses.
+          </p>
+          <p>
+            All calibration objects in this section can be measured as counts or as shares, as long as the same normalization is used throughout. Let $p_i$ denote baseline population in location $i$, and let $m_{i\to j}$ denote baseline migration from $i$ to $j$. Under this parameterization, the calibration targets become:
+          </p>
+          <div class="equation-block">
+            $$
+            p_i = \sum_{j \neq i} \tilde{w}_{ij},
+            \qquad
+            m_{i \to j} = (1-\tilde{\rho})
+            \frac{\tilde{w}_{ij}\tilde{w}_{ji}}
+            {\tilde{w}_{ij}+\tilde{w}_{ji}}.
+            $$
+          </div>
+          <p>
+            The first equation says that all of location $i$'s population must be accounted for by the pairwise nests that include $i$. The second says that migration between $i$ and $j$ is generated by the nest linking those two locations. Thus the calibration problem is simple: choose $\tilde{\rho}$ and $\tilde{w}_{ij}$ to match observed populations and bilateral migration rates.
+          </p>
+          <div class="reader-note">
+            <p>
+              Readers who would like to see how this calibration can be coded can follow along in the <a href="minimal-example.html">Minimal Example</a>.
+            </p>
+          </div>
+
+          <h3 id="step-1">Step 1: Construct Migration Objects</h3>
+          <p>
+            Let $m_{i\to j}$ denote the observed one-year migration flow from origin $i$ to destination $j$, including the non-mover count $m_{i\to i}$. In the data, bilateral flows are not exactly symmetric, whereas the SPACE calibration uses symmetric steady-state flows. To construct the symmetric migration object used by the model for each pair $i \neq j$, take the logarithmic mean:
+          </p>
+          <div class="equation-block">
+            $$
+            \tilde{m}_{ij} =
+            \frac{m_{i \to j} - m_{j \to i}}
+            {\log(m_{i \to j}) - \log(m_{j \to i})}.
+            $$
+          </div>
+          <p>
+            If $m_{i\to j}=m_{j\to i}$, the expression above is undefined, so use $\tilde m_{ij}=m_{i\to j}$. This logarithmic mean is the object that matches the model's steady-state migration flows (Howard and Shao 2026). In practice, using the arithmetic average is unlikely to make much of a difference anyway, as migration is fairly symmetric. For non-movers, set $\tilde m_{ii}=m_{i\to i}$.
+          </p>
+
+          <h3 id="step-2">Step 2: Recover Persistence via Eigenvalues</h3>
+          <p>
+            Next, define total migration out of location $i$ as $m_i = \sum_{j \neq i} \tilde{m}_{ij}$, and define baseline population as $p_i=\sum_j \tilde m_{ij}$, where the sum includes non-movers. Collect these objects in a matrix $M$ whose largest eigenvalue recovers $1-\tilde{\rho}$.
+          </p>
+          <div class="equation-block">
+            $$
+            M_{ij} =
+            \begin{cases}
+            \frac{\tilde{m}_{ij}}{p_i} & i \neq j \\
+            \frac{m_i}{p_i} & i = j.
+            \end{cases}
+            $$
+          </div>
+          <p>
+            This is <em>not</em> a transition matrix. The off-diagonal entries are symmetric migration flows normalized by origin population. The diagonal entry is different from what one might expect in a Markov matrix: here $M_{ii}=m_i/p_i$, not $1-m_i/p_i$. In other words, the diagonal contains the total migration rate out of $i$, not the non-mover share.
+          </p>
+          <p>
+            Then compute the largest eigenvalue of $M$, denoted $\lambda_{\max}(M)$. In the two-location-nest calibration, Howard and Shao (2026) show that this eigenvalue equals $1 - \tilde{\rho}$, so
+          </p>
+          <div class="equation-block">
+            $$
+            \tilde{\rho} = 1 - \lambda_{\max}(M).
+            $$
+          </div>
+          <p>
+            In practice, this is a simple linear algebra step. Build $M$, compute its largest eigenvalue, and set $\tilde{\rho}$ using the formula above. The computation is fast even with many locations.
+          </p>
+
+          <h3 id="step-3">Step 3: Recover Weights</h3>
+          <p>
+            Let $\ell$ denote the eigenvector associated with $\lambda_{\max}$. The calibrated transformed weights are
+          </p>
+          <div class="equation-block">
+            $$
+            \tilde{w}_{ij} =
+            \frac{1}{1 - \tilde{\rho}}
+            \tilde{m}_{ij}
+            \left(1 + \frac{\ell_j}{\ell_i} \right).
+            $$
+          </div>
+          <p>
+            These weights satisfy the population accounting equation and, by construction, reproduce the migration moments targeted in the calibration. Once calibration is complete, the key objects are $\tilde{\rho}$, $\tilde{\nu}$, the baseline population shares $p_i$, and the calibrated weights $\tilde{w}_{iq}$. These are enough to compute population responses to utility changes. Primitive weights $w_{iq}$ are needed only if the population block is written in levels.
+          </p>
+
+          <h3 id="step-4">Step 4: Calibrate $\tilde \nu$</h3>
+          <p>
+            Unlike $\tilde{\rho}$ and the pairwise weights, $\tilde{\nu}$ is not pinned down by migration shares alone. It must come from additional discipline, such as the utility scale in the surrounding QSM or an external elasticity target.
+          </p>
+          <p>
+            The literature usually reports own-population elasticities rather than bilateral cross-elasticities. Under SPACE, summing the cross-effects gives
+          </p>
+          <div class="equation-block">
+            $$
+            \frac{\partial p_i}{\partial u_i} = \tilde{\nu} \, m_i,
+            \qquad
+            \frac{\partial \log p_i}{\partial u_i} =
+            \tilde{\nu}\,\frac{m_i}{p_i}.
+            $$
+          </div>
+          <p>
+            If an existing static-logit calibration targets an average own-population elasticity $\sigma$ with $u$ measured in log real wages, then a reasonable calibration is
+          </p>
+          <div class="equation-block">
+            $$
+            \tilde{\nu} =
+            \frac{\partial \log p_i / \partial u_i}{m_i/p_i}
+            \approx
+            \frac{\sigma}{\mathbb{E}_i[m_i/p_i]}.
+            $$
+          </div>
+          <p>
+            For example, suppose an existing calibration implies an own-population elasticity to real wages of $3$, and the average migration rate is $m_i/p_i \approx 0.05$. Then a reasonable calibration is $\tilde \nu=3/0.05=60$.
+          </p>
+        </section>
+
+        <section id="using" aria-labelledby="using-title">
+          <h2 id="using-title">Using the Model in a QSM</h2>
+          <p>
+            Once calibrated, the SPACE block can be inserted into a QSM much like a standard migration or location-choice block. The inputs are the utilities $u_i$ implied by the rest of the model. The output is the population vector $p_i$.
+          </p>
+          <p>
+            The substitution is easiest to see by comparing the population equations. In a static logit model, one often closes the model with
+          </p>
+          <div class="equation-block">
+            $$
+            p_i = \frac{e^{u_i/\sigma}}{\sum_k e^{u_k/\sigma}},
+            $$
+          </div>
+          <p>
+            where $k$ indexes possible destinations and $\sigma$ is the logit scale parameter. In a dynamic moving-cost model, one often uses
+          </p>
+          <div class="equation-block">
+            $$
+            m_{j \to i,t} =
+            \frac{e^{(u_{it}-\delta_{ji}+\beta \mathbb{E}[V_{i,t+1}])/\sigma}}
+            {\sum_k e^{(u_{kt}-\delta_{jk}+\beta \mathbb{E}[V_{k,t+1}])/\sigma}},
+            \qquad
+            p_{it+1} = \sum_j p_{jt} m_{j \to i,t}.
+            $$
+          </div>
+          <p>
+            Here $m_{j \to i,t}$ is the share of people in origin $j$ who move to destination $i$ at date $t$, $p_{jt}$ is the population share in origin $j$, $\delta_{ji}$ is the moving cost, and $V_{i,t+1}$ is next period's value of being in destination $i$. With SPACE, these closures are replaced by the population mapping below. The wage, rent, housing, and trade blocks can stay the same. What changes is the mapping from utilities into populations and migration flows.
+          </p>
+          <p>
+            There are two useful ways to write this mapping. Use the level formula when solving a full equilibrium model from utilities to populations. Use hat algebra when studying counterfactual changes around a calibrated baseline. Both formulas below use the two-location-nest calibration described above.
+          </p>
+
+          <h3 id="level-formula">Exact Formula for Population</h3>
+          <p>
+            For the implementation formulas, work with the $\rho \to 1$ representation while holding $\tilde{\rho}$ and $\tilde{\nu}$ fixed. The first step is to recover the primitive pairwise weights $w_{ij}$ from the calibrated objects. Let $u_i^0$ denote baseline utility. Then
+          </p>
+          <div class="equation-block">
+            $$
+            w_{ij} =
+            (\tilde{w}_{ij}+\tilde{w}_{ji})
+            \tilde{w}_{ij}
+            e^{-(1-\tilde{\rho})\tilde{\nu} u_i^0}.
+            $$
+          </div>
+          <p>
+            The analogous expression recovers $w_{ji}$. The $\tilde{w}$'s describe the baseline mass attached to each pairwise nest. The $w$'s are the fixed primitives used to evaluate the model at any utility vector $u$.
+          </p>
+          <p>
+            Once these weights have been recovered, population can be written directly as a function of utilities:
+          </p>
+          <div class="equation-block">
+            $$
+            p_i(u)=
+            \sum_{j \neq i}
+            \frac{w_{ij}e^{(1-\tilde{\rho})\tilde{\nu} u_i}}
+            {w_{ij}e^{(1-\tilde{\rho})\tilde{\nu} u_i}
+            +w_{ji}e^{(1-\tilde{\rho})\tilde{\nu} u_j}}.
+            $$
+          </div>
+          <p>
+            By construction, plugging in the baseline utility vector $u^0$ reproduces the baseline shares $p_i$. Plugging in a counterfactual utility vector $u'$ gives the counterfactual population vector. For equilibrium computation, this is the main object. Feed in utilities from the rest of the model, compute $p_i(u)$, and iterate until markets clear.
+          </p>
+
+          <h3 id="hat-algebra">Hat Algebra</h3>
+          <p>
+            In many counterfactual exercises, the most convenient approach is not to resolve the full level problem. It is to work with exact hat algebra. Let $u_i$ denote baseline utility and $u_i'$ denote counterfactual utility. Define
+          </p>
+          <div class="equation-block">
+            $$
+            \hat{u}_i = \exp\left(u_i' - u_i\right)
+            $$
+          </div>
+          <p>
+            as the multiplicative utility change. Let $\hat{p}_i = p_i'/p_i$ denote the proportional change in population, where $p_i'$ is counterfactual population. Under the two-location-nest calibration, population changes satisfy
+          </p>
+          <div class="equation-block">
+            $$
+            \hat{p}_i
+            =
+            \hat{u}_i^{(1-\tilde{\rho})\tilde{\nu}}
+            \sum_{j \neq i}
+            \frac{\tilde{w}_{ij}}{p_i}
+            \frac{\tilde{w}_{ij}+\tilde{w}_{ji}}
+            {\tilde{w}_{ij}\hat{u}_i^{(1-\tilde{\rho})\tilde{\nu}}
+            +\tilde{w}_{ji}\hat{u}_j^{(1-\tilde{\rho})\tilde{\nu}}}.
+            $$
+          </div>
+          <p>
+            This is the same object as the level formula above, written relative to the baseline equilibrium. It uses exactly the objects produced by the calibration: the baseline shares $p_i$, the transformed pairwise weights $\tilde{w}_{ij}$, and the reduced-form parameters $(\tilde{\rho},\tilde{\nu})$.
+          </p>
+          <p>
+            The term $\hat{u}_i^{(1-\tilde{\rho})\tilde{\nu}}$ captures how a utility increase raises demand for location $i$. The summation term aggregates that effect across the pairwise nests in which $i$ participates. Stronger migration linkages appear as larger calibrated $\tilde{w}_{ij}$ values and therefore larger cross-effects.
+          </p>
+          <p>
+            In practice, this is the easiest way to use SPACE in a counterfactual. Calibrate $\tilde{\rho}$ and $\tilde{w}_{ij}$ from migration data, solve the baseline equilibrium, and then map counterfactual utility changes into population changes with the formula above.
+          </p>
+        </section>
+
+        <section id="conclusion" aria-labelledby="conclusion-title">
+          <h2 id="conclusion-title">Conclusion</h2>
+          <p>
+            SPACE provides a tractable alternative to moving-cost-based migration models. Its main advantages are calibration from migration data, simple eigenvalue-based estimation, closed-form population responses, and cross-elasticities disciplined by observed migration flows.
+          </p>
+          <p>
+            One final practical point is important. Switching a dynamic migration model to SPACE changes not only the migration block, but also the macro dynamics of adjustment. In the baseline SPACE formulation, population adjusts much more quickly to permanent shocks than it does in a moving-cost model. If an application needs slower transition dynamics, that persistence will usually have to come from another realistic feature of the model, such as housing or local capital adjustment.
+          </p>
+        </section>
+
+        <section id="checklist" aria-labelledby="checklist-title">
+          <h2 id="checklist-title">Implementation Checklist</h2>
+          <p>
+            We conclude with a checklist for users to verify they have followed all the steps of implementing the SPACE model calibration:
+          </p>
+          <ol class="steps">
+            <li>Start with bilateral migration flows and baseline population.</li>
+            <li>Symmetrize flows using the logarithmic mean $\tilde m_{ij}$.</li>
+            <li>Compute total migration $m_i$, baseline population $p_i$, and the matrix $M$.</li>
+            <li>Recover $\tilde{\rho}$ from the largest eigenvalue of $M$.</li>
+            <li>Recover the transformed pairwise weights $\tilde w_{ij}$ from the associated eigenvector.</li>
+            <li>Choose $\tilde{\nu}$ using an elasticity target or other discipline from the surrounding model.</li>
+            <li>Recover primitive weights $w_{ij}$ only if solving the population block in levels.</li>
+            <li>Use either the level formula or the hat-algebra formula in the QSM.</li>
+          </ol>
+        </section>
+
+        <section id="references" class="references" aria-labelledby="references-title">
+          <h2 id="references-title">References</h2>
+          <p>
+            Howard, Greg, and Hansen Shao. 2026. "The Dynamics of Internal Migration: A New Fact and its Implications." <em>The Review of Economic Studies</em>.
+          </p>
+          <p>
+            McFadden, Daniel. 1978. "Modelling the Choice of Residential Location." In <em>Spatial Interaction Theory and Planning Models</em>, edited by Anders Karlqvist, Lars Lundqvist, Folke Snickars, and Jorgen W. Weibull, 75-96. Amsterdam: North-Holland.
+          </p>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      Static version of the working note. The <a href="note.pdf">PDF</a> is linked above.
+    </div>
+  </footer>
+</body>
+</html>
